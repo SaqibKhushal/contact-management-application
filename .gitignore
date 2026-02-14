@@ -30,3 +30,6 @@ npm-debug.log*
 # Database
 *.db
 *.sqlite
+**/data/
+*.mv.db
+*.trace.db
