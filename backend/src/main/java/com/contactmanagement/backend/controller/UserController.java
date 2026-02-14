@@ -4,13 +4,16 @@ import com.contactmanagement.backend.dto.ChangePasswordRequest;
 import com.contactmanagement.backend.dto.UserProfileDTO;
 import com.contactmanagement.backend.service.UserService;
 import jakarta.validation.Valid;
-// ...existing code...
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST controller for user profile management.
+ * Handles profile updates, password changes, and account deletion.
+ */
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin(origins = "*")

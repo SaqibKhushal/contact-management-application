@@ -1,6 +1,5 @@
 package com.contactmanagement.backend.security;
 
-// ...existing code...
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Spring Security configuration with JWT authentication.
+ * Configures security filters, CORS, and session management.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

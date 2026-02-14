@@ -4,7 +4,6 @@ import com.contactmanagement.backend.dto.*;
 import com.contactmanagement.backend.entity.User;
 import com.contactmanagement.backend.service.UserService;
 import jakarta.validation.Valid;
-// ...existing code...
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST controller for authentication operations.
+ * Handles user registration and login.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")

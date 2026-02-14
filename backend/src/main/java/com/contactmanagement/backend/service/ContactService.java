@@ -10,7 +10,6 @@ import com.contactmanagement.backend.repository.ContactRepository;
 import com.contactmanagement.backend.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// ...existing code...
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing contact operations.
+ * Handles CRUD operations for contacts with user isolation.
+ */
 @Service
 public class ContactService {
     

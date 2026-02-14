@@ -3,7 +3,6 @@ package com.contactmanagement.backend.controller;
 import com.contactmanagement.backend.dto.ContactDTO;
 import com.contactmanagement.backend.service.ContactService;
 import jakarta.validation.Valid;
-// ...existing code...
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * REST controller for contact management operations.
+ * All endpoints require authentication via JWT token.
+ */
 @RestController
 @RequestMapping("/api/contacts")
 @CrossOrigin(origins = "*")
