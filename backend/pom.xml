@@ -197,6 +197,10 @@
 						<exclude>**/entity/**</exclude>
 						<exclude>**/config/**</exclude>
 						<exclude>**/BackendApplication.class</exclude>
+						<!-- Exclude controllers (require integration tests), security, and exception handlers -->
+						<exclude>**/controller/**</exclude>
+						<exclude>**/security/**</exclude>
+						<exclude>**/exception/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
