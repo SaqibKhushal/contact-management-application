@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing contact operations.
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 public class ContactService {
     
     private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
+    private static final String CONTACT_NOT_FOUND = "Contact not found";
     
     private final ContactRepository contactRepository;
     private final SecurityUtils securityUtils;
@@ -51,7 +51,7 @@ public class ContactService {
         User user = securityUtils.getCurrentUser();
         @SuppressWarnings("null")
         Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(CONTACT_NOT_FOUND));
         
         if (!contact.getUser().getId().equals(user.getId())) {
             throw new CustomException("Access denied");
@@ -73,7 +73,7 @@ public class ContactService {
         contact.setTitle(contactDTO.getTitle());
         contact.setProfileImage(contactDTO.getProfileImage());
         contact.setTags(contactDTO.getTags() != null ? contactDTO.getTags() : new ArrayList<>());
-        contact.setIsFavorite(contactDTO.getIsFavorite() != null ? contactDTO.getIsFavorite() : false);
+        contact.setIsFavorite(contactDTO.getIsFavorite() != null && contactDTO.getIsFavorite());
         
         // Add email addresses
         if (contactDTO.getEmailAddresses() != null) {
@@ -110,7 +110,7 @@ public class ContactService {
         User user = securityUtils.getCurrentUser();
         @SuppressWarnings("null")
         Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(CONTACT_NOT_FOUND));
         
         if (!contact.getUser().getId().equals(user.getId())) {
             throw new CustomException("Access denied");
@@ -172,7 +172,7 @@ public class ContactService {
         
         User user = securityUtils.getCurrentUser();
         Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(CONTACT_NOT_FOUND));
         
         if (!contact.getUser().getId().equals(user.getId())) {
             throw new CustomException("Access denied");
@@ -189,14 +189,14 @@ public class ContactService {
         
         User user = securityUtils.getCurrentUser();
         Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(CONTACT_NOT_FOUND));
         
         if (!contact.getUser().getId().equals(user.getId())) {
             throw new CustomException("Access denied");
         }
         
         // Handle null isFavorite by treating it as false
-        Boolean currentFavorite = contact.getIsFavorite() != null ? contact.getIsFavorite() : false;
+        Boolean currentFavorite = contact.getIsFavorite() != null && contact.getIsFavorite();
         contact.setIsFavorite(!currentFavorite);
         Contact updatedContact = contactRepository.save(contact);
         logger.info("Contact favorite status updated to: {}", updatedContact.getIsFavorite());
@@ -212,7 +212,7 @@ public class ContactService {
         dto.setTitle(contact.getTitle());
         dto.setProfileImage(contact.getProfileImage());
         dto.setTags(contact.getTags());
-        dto.setIsFavorite(contact.getIsFavorite() != null ? contact.getIsFavorite() : false);
+        dto.setIsFavorite(contact.getIsFavorite() != null && contact.getIsFavorite());
         
         dto.setEmailAddresses(contact.getEmailAddresses().stream()
                 .map(email -> {
@@ -221,7 +221,7 @@ public class ContactService {
                     emailDTO.setEmail(email.getEmail());
                     emailDTO.setLabel(email.getLabel());
                     return emailDTO;
-                }).collect(Collectors.toList()));
+                }).toList());
         
         dto.setPhoneNumbers(contact.getPhoneNumbers().stream()
                 .map(phone -> {
@@ -230,7 +230,7 @@ public class ContactService {
                     phoneDTO.setPhone(phone.getPhone());
                     phoneDTO.setLabel(phone.getLabel());
                     return phoneDTO;
-                }).collect(Collectors.toList()));
+                }).toList());
         
         return dto;
     }

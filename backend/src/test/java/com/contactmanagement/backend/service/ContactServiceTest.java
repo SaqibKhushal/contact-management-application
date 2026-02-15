@@ -38,6 +38,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ContactService Unit Tests")
+@SuppressWarnings("null") // Mockito type conversions - safe in test context
 class ContactServiceTest {
 
     @Mock

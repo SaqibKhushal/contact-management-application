@@ -30,6 +30,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Unit Tests")
+@SuppressWarnings("null") // Mockito type conversions - safe in test context
 class UserServiceTest {
 
     @Mock

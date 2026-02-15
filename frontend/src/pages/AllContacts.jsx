@@ -49,7 +49,7 @@ const AllContacts = () => {
     
     // Load user profile image using user-specific key
     // CRITICAL: Only load the current user's profile image
-    if (user && user.id) {
+    if (user?.id) {
       const userImageKey = `userProfileImage_${user.id}`;
       const savedImage = localStorage.getItem(userImageKey);
       if (savedImage) {
@@ -122,6 +122,7 @@ const AllContacts = () => {
       setSelectedContact(null);
       fetchContacts();
     } catch (error) {
+      console.error('Error deleting contact:', error);
       toast.error('Failed to delete contact');
     }
   };
@@ -141,8 +142,10 @@ const AllContacts = () => {
     try {
       await contactService.toggleFavorite(contact.id);
     } catch (error) {
-      // Revert on error
-      setContacts(contacts);
+      // Revert on error using functional update
+      setContacts(prevContacts => prevContacts.map(c => 
+        c.id === contact.id ? { ...c, isFavorite: !c.isFavorite } : c
+      ));
       if (selectedContact?.id === contact.id) {
         setSelectedContact(contact);
       }
@@ -325,10 +328,21 @@ const AllContacts = () => {
                   {tagContacts.map(contact => (
                     <div
                       key={`${tag}-${contact.id}`}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => {
                         setSelectedContact(contact);
                         if (isMobile) {
                           setShowDetailOnMobile(true);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedContact(contact);
+                          if (isMobile) {
+                            setShowDetailOnMobile(true);
+                          }
                         }
                       }}
                       className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
@@ -387,10 +401,21 @@ const AllContacts = () => {
               filteredContacts.map(contact => (
                 <div
                   key={contact.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     setSelectedContact(contact);
                     if (isMobile) {
                       setShowDetailOnMobile(true);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedContact(contact);
+                      if (isMobile) {
+                        setShowDetailOnMobile(true);
+                      }
                     }
                   }}
                   className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
