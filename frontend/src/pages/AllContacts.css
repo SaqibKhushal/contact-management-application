@@ -447,8 +447,8 @@
 }
 
 .detail-action-btn.delete {
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
+  background: #991b1b;
+  color: #ffffff;
 }
 
 .detail-action-btn.delete:hover {
