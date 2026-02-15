@@ -100,8 +100,8 @@ const Profile = () => {
           localStorage.setItem(userImageKey, base64);
           // Removed 'Profile image updated!' toast
         } catch (error) {
-          console.error("Failed to save profile image");
-          toast.error("Failed to save profile image");
+          console.error("Failed to save profile image:", error);
+          toast.error(error.message || "Failed to save profile image");
         }
       };
       reader.readAsDataURL(file);
@@ -118,8 +118,8 @@ const Profile = () => {
       localStorage.removeItem(userImageKey);
       // Removed 'Profile image removed!' toast
     } catch (error) {
-      console.error("Failed to remove profile image");
-      toast.error("Failed to remove profile image");
+      console.error("Failed to remove profile image:", error);
+      toast.error(error.message || "Failed to remove profile image");
     }
   };
 
@@ -319,14 +319,14 @@ const Profile = () => {
         <div className="profile-card">
           <div className="card-header">
             <h2>Personal Information</h2>
-            {!isEditing ? (
+            {isEditing ? null : (
               <button
                 onClick={() => setIsEditing(true)}
                 className="edit-toggle-btn"
               >
                 Edit
               </button>
-            ) : null}
+            )}
           </div>
 
           <form onSubmit={handleUpdateProfile} className="profile-form">

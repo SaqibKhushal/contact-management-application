@@ -203,6 +203,180 @@ const AllContacts = () => {
     return colors[tag?.toLowerCase()] || '#71717a';
   };
 
+  // Helper function to render contacts list (extracted to avoid nested ternary)
+  const renderContactsList = () => {
+    if (filteredContacts.length === 0) {
+      return (
+        <div className="p-8 text-center text-zinc-500">
+          <p className="mb-4">No contacts found</p>
+          <button onClick={handleCreateContact} className="text-blue-500 hover:text-blue-400 text-sm">
+            Add your first contact
+          </button>
+        </div>
+      );
+    }
+
+    if (activeTab === 'tags' && groupedByTags) {
+      return Object.entries(groupedByTags).map(([tag, tagContacts]) => (
+        <div key={tag} className="mb-4">
+          {/* Tag heading with tag color */}
+          <div className="px-4 py-2 sticky top-0 bg-zinc-950 z-10 border-b border-zinc-800">
+            <h3 
+              className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2"
+              style={{ color: getTagColor(tag) }}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTagColor(tag) }}></span>
+              {tag}
+              <span className="text-xs text-zinc-500 font-normal ml-auto">({tagContacts.length})</span>
+            </h3>
+          </div>
+          
+          {/* Contacts under this tag */}
+          {tagContacts.map(contact => (
+            <div
+              key={`${tag}-${contact.id}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                setSelectedContact(contact);
+                if (isMobile) {
+                  setShowDetailOnMobile(true);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedContact(contact);
+                  if (isMobile) {
+                    setShowDetailOnMobile(true);
+                  }
+                }
+              }}
+              className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
+                selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
+              }`}
+            >
+              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
+                {contact.profileImage && contact.profileImage.trim() !== '' ? (
+                  <img 
+                    src={contact.profileImage} 
+                    alt={`${contact.firstName} ${contact.lastName}`} 
+                    className="w-full h-full object-cover" 
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.textContent = getInitials(contact);
+                    }}
+                  />
+                ) : (
+                  getInitials(contact)
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-sm font-medium text-white truncate">
+                    {contact.firstName} {contact.lastName}
+                  </h3>
+                  {contact.tags && contact.tags.length > 1 && (
+                    <div className="flex gap-1">
+                      {contact.tags.slice(0, 2).map((t) => (
+                        <span
+                          key={`${contact.id}-${t}`}
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: getTagColor(t) }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(contact);
+                }}
+                className="flex-shrink-0"
+              >
+                <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ));
+    }
+
+    // Regular list view
+    return filteredContacts.map(contact => (
+      <div
+        key={contact.id}
+        role="button"
+        tabIndex={0}
+        onClick={() => {
+          setSelectedContact(contact);
+          if (isMobile) {
+            setShowDetailOnMobile(true);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setSelectedContact(contact);
+            if (isMobile) {
+              setShowDetailOnMobile(true);
+            }
+          }
+        }}
+        className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
+          selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
+        }`}
+      >
+        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
+          {contact.profileImage && contact.profileImage.trim() !== '' ? (
+            <img 
+              src={contact.profileImage} 
+              alt={`${contact.firstName} ${contact.lastName}`} 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.textContent = getInitials(contact);
+              }}
+            />
+          ) : (
+            getInitials(contact)
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-sm font-medium text-white truncate">
+              {contact.firstName} {contact.lastName}
+            </h3>
+            {contact.tags && contact.tags.length > 0 && (
+              <div className="flex gap-1">
+                {contact.tags.slice(0, 2).map((tag) => (
+                  <span
+                    key={`${contact.id}-${tag}`}
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: getTagColor(tag) }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(contact);
+          }}
+          className="flex-shrink-0"
+        >
+          <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
+        </button>
+      </div>
+    ));
+  };
+
   const filteredContacts = getFilteredContacts();
   const groupedByTags = activeTab === 'tags' ? getContactsGroupedByTags() : null;
 
@@ -301,173 +475,7 @@ const AllContacts = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {filteredContacts.length === 0 ? (
-              <div className="p-8 text-center text-zinc-500">
-                <p className="mb-4">No contacts found</p>
-                <button onClick={handleCreateContact} className="text-blue-500 hover:text-blue-400 text-sm">
-                  Add your first contact
-                </button>
-              </div>
-            ) : activeTab === 'tags' && groupedByTags ? (
-              /* Grouped by tags view */
-              Object.entries(groupedByTags).map(([tag, tagContacts]) => (
-                <div key={tag} className="mb-4">
-                  {/* Tag heading with tag color */}
-                  <div className="px-4 py-2 sticky top-0 bg-zinc-950 z-10 border-b border-zinc-800">
-                    <h3 
-                      className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2"
-                      style={{ color: getTagColor(tag) }}
-                    >
-                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTagColor(tag) }}></span>
-                      {tag}
-                      <span className="text-xs text-zinc-500 font-normal ml-auto">({tagContacts.length})</span>
-                    </h3>
-                  </div>
-                  
-                  {/* Contacts under this tag */}
-                  {tagContacts.map(contact => (
-                    <div
-                      key={`${tag}-${contact.id}`}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => {
-                        setSelectedContact(contact);
-                        if (isMobile) {
-                          setShowDetailOnMobile(true);
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedContact(contact);
-                          if (isMobile) {
-                            setShowDetailOnMobile(true);
-                          }
-                        }
-                      }}
-                      className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
-                        selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
-                        {contact.profileImage && contact.profileImage.trim() !== '' ? (
-                          <img 
-                            src={contact.profileImage} 
-                            alt={`${contact.firstName} ${contact.lastName}`} 
-                            className="w-full h-full object-cover" 
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.parentElement.textContent = getInitials(contact);
-                            }}
-                          />
-                        ) : (
-                          getInitials(contact)
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="text-sm font-medium text-white truncate">
-                            {contact.firstName} {contact.lastName}
-                          </h3>
-                          {contact.tags && contact.tags.length > 1 && (
-                            <div className="flex gap-1">
-                              {contact.tags.slice(0, 2).map((t, idx) => (
-                                <span
-                                  key={idx}
-                                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                  style={{ backgroundColor: getTagColor(t) }}
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(contact);
-                        }}
-                        className="flex-shrink-0"
-                      >
-                        <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ))
-            ) : (
-              /* Regular list view */
-              filteredContacts.map(contact => (
-                <div
-                  key={contact.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    setSelectedContact(contact);
-                    if (isMobile) {
-                      setShowDetailOnMobile(true);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setSelectedContact(contact);
-                      if (isMobile) {
-                        setShowDetailOnMobile(true);
-                      }
-                    }
-                  }}
-                  className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
-                    selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
-                    {contact.profileImage && contact.profileImage.trim() !== '' ? (
-                      <img 
-                        src={contact.profileImage} 
-                        alt={`${contact.firstName} ${contact.lastName}`} 
-                        className="w-full h-full object-cover" 
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.textContent = getInitials(contact);
-                        }}
-                      />
-                    ) : (
-                      getInitials(contact)
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="text-sm font-medium text-white truncate">
-                        {contact.firstName} {contact.lastName}
-                      </h3>
-                      {contact.tags && contact.tags.length > 0 && (
-                        <div className="flex gap-1">
-                          {contact.tags.slice(0, 2).map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: getTagColor(tag) }}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(contact);
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
-                  </button>
-                </div>
-              ))
-            )}
+            {renderContactsList()}
           </div>
         </aside>
 
@@ -513,9 +521,9 @@ const AllContacts = () => {
                     <p className="text-zinc-400 mb-3">{selectedContact.title || 'No title'}</p>
                     {selectedContact.tags && selectedContact.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        {selectedContact.tags.map((tag, idx) => (
+                        {selectedContact.tags.map((tag) => (
                           <span
-                            key={idx}
+                            key={`detail-${tag}`}
                             className="px-3 py-1 rounded-full text-xs font-medium text-white"
                             style={{ backgroundColor: getTagColor(tag) }}
                           >
@@ -556,8 +564,8 @@ const AllContacts = () => {
                 {selectedContact.phoneNumbers && selectedContact.phoneNumbers.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-zinc-400 mb-3 uppercase tracking-wider">Phone Numbers</h3>
-                    {selectedContact.phoneNumbers.map((phone, idx) => (
-                      <div key={idx} className="py-2">
+                    {selectedContact.phoneNumbers.map((phone) => (
+                      <div key={`phone-${phone.phone}`} className="py-2">
                         <div className="text-white">{phone.phone}</div>
                         <div className="text-xs text-zinc-500 capitalize">{phone.label || 'mobile'}</div>
                       </div>
@@ -568,8 +576,8 @@ const AllContacts = () => {
                 {selectedContact.emailAddresses && selectedContact.emailAddresses.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-zinc-400 mb-3 uppercase tracking-wider">Email Addresses</h3>
-                    {selectedContact.emailAddresses.map((email, idx) => (
-                      <div key={idx} className="py-2">
+                    {selectedContact.emailAddresses.map((email) => (
+                      <div key={`email-${email.email}`} className="py-2">
                         <div className="text-white">{email.email}</div>
                         <div className="text-xs text-zinc-500 capitalize">{email.label || 'personal'}</div>
                       </div>

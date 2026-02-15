@@ -25,7 +25,8 @@ const ContactList = () => {
       const response = await contactService.getAllContacts(0, 1);
       setContactCount(response.totalElements || 0);
     } catch (error) {
-      console.error('Failed to fetch contact count');
+      console.error('Failed to fetch contact count:', error);
+      setContactCount(0);
     } finally {
       setLoading(false);
     }
@@ -47,17 +48,24 @@ const ContactList = () => {
     function typeEffect() {
       const currentText = features[skillIndex];
 
-      if (!isDeleting) {
+      if (isDeleting) {
+        textElement.textContent = currentText.slice(0, charIndex--);
+
+        if (charIndex === 0) {
+          isDeleting = false;
+          skillIndex = (skillIndex + 1) % features.length;
+          setTimeout(typeEffect, pauseAfterDeleting);
+        } else {
+          setTimeout(typeEffect, deletingSpeed);
+        }
+      } else {
         textElement.textContent = currentText.slice(0, charIndex++);
         
         if (charIndex === currentText.length + 1) {
           setTimeout(() => isDeleting = true, pauseAfterTyping);
         }
-      } else {
-        textElement.textContent = currentText.slice(0, charIndex--);
-
-        if (charIndex === 0) {
-          isDeleting = false;
+        setTimeout(typeEffect, typingSpeed);
+      }
           skillIndex = (skillIndex + 1) % features.length;
           setTimeout(() => {}, pauseAfterDeleting);
         }
