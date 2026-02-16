@@ -203,6 +203,67 @@ const AllContacts = () => {
     return colors[tag?.toLowerCase()] || '#71717a';
   };
 
+  // Event handler: Contact selection
+  const handleContactClick = (contact) => {
+    setSelectedContact(contact);
+    if (isMobile) {
+      setShowDetailOnMobile(true);
+    }
+  };
+
+  // Event handler: Contact selection via keyboard
+  const handleContactKeyDown = (e, contact) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedContact(contact);
+      if (isMobile) {
+        setShowDetailOnMobile(true);
+      }
+    }
+  };
+
+  // Event handler: Toggle favorite with stop propagation
+  const handleFavoriteClick = (e, contact) => {
+    e.stopPropagation();
+    toggleFavorite(contact);
+  };
+
+  // Event handler: Profile image error fallback
+  const handleImageError = (e, contact) => {
+    e.target.style.display = 'none';
+    e.target.parentElement.textContent = getInitials(contact);
+  };
+
+  // Event handler: Tab change with mobile handling
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (isMobile && showDetailOnMobile) {
+      setShowDetailOnMobile(false);
+    }
+  };
+
+  // Event handler: Profile navigation
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+
+  // Event handler: Logout
+  const handleLogoutClick = () => {
+    logout();
+    navigate('/login');
+  };
+
+  // Event handler: Profile image error with SVG fallback
+  const handleProfileImageError = (e) => {
+    e.target.style.display = 'none';
+    e.target.parentElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+  };
+
+  // Event handler: Back to list on mobile
+  const handleBackToList = () => {
+    setShowDetailOnMobile(false);
+  };
+
   // Helper function to render contacts list (extracted to avoid nested ternary)
   const renderContactsList = () => {
     if (filteredContacts.length === 0) {
@@ -237,21 +298,8 @@ const AllContacts = () => {
               key={`${tag}-${contact.id}`}
               role="button"
               tabIndex={0}
-              onClick={() => {
-                setSelectedContact(contact);
-                if (isMobile) {
-                  setShowDetailOnMobile(true);
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelectedContact(contact);
-                  if (isMobile) {
-                    setShowDetailOnMobile(true);
-                  }
-                }
-              }}
+              onClick={() => handleContactClick(contact)}
+              onKeyDown={(e) => handleContactKeyDown(e, contact)}
               className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
                 selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
               }`}
@@ -262,10 +310,7 @@ const AllContacts = () => {
                     src={contact.profileImage} 
                     alt={`${contact.firstName} ${contact.lastName}`} 
                     className="w-full h-full object-cover" 
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.textContent = getInitials(contact);
-                    }}
+                    onError={(e) => handleImageError(e, contact)}
                   />
                 ) : (
                   getInitials(contact)
@@ -291,10 +336,7 @@ const AllContacts = () => {
                 <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
               </div>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(contact);
-                }}
+                onClick={(e) => handleFavoriteClick(e, contact)}
                 className="flex-shrink-0"
               >
                 <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
@@ -311,21 +353,8 @@ const AllContacts = () => {
         key={contact.id}
         role="button"
         tabIndex={0}
-        onClick={() => {
-          setSelectedContact(contact);
-          if (isMobile) {
-            setShowDetailOnMobile(true);
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setSelectedContact(contact);
-            if (isMobile) {
-              setShowDetailOnMobile(true);
-            }
-          }
-        }}
+        onClick={() => handleContactClick(contact)}
+        onKeyDown={(e) => handleContactKeyDown(e, contact)}
         className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
           selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
         }`}
@@ -336,10 +365,7 @@ const AllContacts = () => {
               src={contact.profileImage} 
               alt={`${contact.firstName} ${contact.lastName}`} 
               className="w-full h-full object-cover" 
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.textContent = getInitials(contact);
-              }}
+              onError={(e) => handleImageError(e, contact)}
             />
           ) : (
             getInitials(contact)
@@ -365,10 +391,7 @@ const AllContacts = () => {
           <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
         </div>
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleFavorite(contact);
-          }}
+          onClick={(e) => handleFavoriteClick(e, contact)}
           className="flex-shrink-0"
         >
           <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
@@ -393,13 +416,7 @@ const AllContacts = () => {
             {['contacts', 'favorites', 'tags'].map(tab => (
               <button
                 key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  // Exit detail view when switching tabs on mobile
-                  if (isMobile && showDetailOnMobile) {
-                    setShowDetailOnMobile(false);
-                  }
-                }}
+                onClick={() => handleTabChange(tab)}
                 className={`text-sm font-medium capitalize transition relative pb-1 ${
                   activeTab === tab ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
                 }`}
@@ -413,7 +430,7 @@ const AllContacts = () => {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => navigate('/profile')}
+              onClick={handleProfileClick}
               className="w-9 h-9 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center overflow-hidden transition border-2 border-zinc-700"
               title="Profile"
             >
@@ -422,20 +439,14 @@ const AllContacts = () => {
                   src={userProfileImage} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
-                  }}
+                  onError={handleProfileImageError}
                 />
               ) : (
                 <User size={18} />
               )}
             </button>
             <button 
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }} 
+              onClick={handleLogoutClick}
               className="w-9 h-9 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition"
               title="Logout"
             >
@@ -488,7 +499,7 @@ const AllContacts = () => {
               {/* Back button for mobile */}
               {isMobile && showDetailOnMobile && (
                 <button
-                  onClick={() => setShowDetailOnMobile(false)}
+                  onClick={handleBackToList}
                   className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4 transition"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -505,10 +516,7 @@ const AllContacts = () => {
                         src={selectedContact.profileImage} 
                         alt={`${selectedContact.firstName} ${selectedContact.lastName}`} 
                         className="w-full h-full object-cover" 
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.textContent = getInitials(selectedContact);
-                        }}
+                        onError={(e) => handleImageError(e, selectedContact)}
                       />
                     ) : (
                       getInitials(selectedContact)
