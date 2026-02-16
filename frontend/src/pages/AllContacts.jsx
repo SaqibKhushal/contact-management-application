@@ -9,6 +9,144 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
 import './AllContacts.css';
 
+// Reusable Component: Avatar with image fallback
+const ContactAvatar = ({ contact, getInitials, onImageError, size = 'default' }) => {
+  const sizeClasses = {
+    small: 'w-10 h-10 text-sm',
+    default: 'w-10 h-10 text-sm',
+    large: 'w-24 h-24 text-2xl'
+  };
+
+  return (
+    <div className={`${sizeClasses[size]} rounded-full bg-zinc-800 flex items-center justify-center font-medium overflow-hidden flex-shrink-0 ${size === 'large' ? 'border-2 border-zinc-800' : ''}`}>
+      {contact.profileImage && contact.profileImage.trim() !== '' ? (
+        <img 
+          src={contact.profileImage} 
+          alt={`${contact.firstName} ${contact.lastName}`} 
+          className="w-full h-full object-cover" 
+          onError={(e) => onImageError(e, contact)}
+        />
+      ) : (
+        getInitials(contact)
+      )}
+    </div>
+  );
+};
+
+// Reusable Component: Tag dots preview
+const ContactTagsPreview = ({ contact, getTagColor, showCount = 2 }) => {
+  if (!contact.tags || contact.tags.length === 0) return null;
+  
+  return (
+    <div className="flex gap-1">
+      {contact.tags.slice(0, showCount).map((tag) => (
+        <span
+          key={`${contact.id}-${tag}`}
+          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{ backgroundColor: getTagColor(tag) }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Reusable Component: Favorite button
+const FavoriteButton = ({ contact, onClick }) => (
+  <button
+    onClick={onClick}
+    className="flex-shrink-0"
+  >
+    <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
+  </button>
+);
+
+// Reusable Component: Contact item card
+const ContactItem = ({ 
+  contact, 
+  isSelected, 
+  onClick, 
+  onKeyDown, 
+  onFavoriteClick,
+  getInitials,
+  getTagColor,
+  onImageError,
+  showMultipleTags = false
+}) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={onClick}
+    onKeyDown={onKeyDown}
+    className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
+      isSelected ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
+    }`}
+  >
+    <ContactAvatar 
+      contact={contact} 
+      getInitials={getInitials} 
+      onImageError={onImageError}
+    />
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-0.5">
+        <h3 className="text-sm font-medium text-white truncate">
+          {contact.firstName} {contact.lastName}
+        </h3>
+        {showMultipleTags && contact.tags && contact.tags.length > 1 && (
+          <ContactTagsPreview contact={contact} getTagColor={getTagColor} />
+        )}
+        {!showMultipleTags && (
+          <ContactTagsPreview contact={contact} getTagColor={getTagColor} />
+        )}
+      </div>
+      <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
+    </div>
+    <FavoriteButton contact={contact} onClick={onFavoriteClick} />
+  </div>
+);
+
+// Reusable Component: Tag group header and contacts
+const TagGroup = ({ 
+  tag, 
+  contacts, 
+  selectedContactId,
+  onContactClick,
+  onContactKeyDown,
+  onFavoriteClick,
+  getInitials,
+  getTagColor,
+  onImageError
+}) => (
+  <div className="mb-4">
+    {/* Tag heading with tag color */}
+    <div className="px-4 py-2 sticky top-0 bg-zinc-950 z-10 border-b border-zinc-800">
+      <h3 
+        className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2"
+        style={{ color: getTagColor(tag) }}
+      >
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTagColor(tag) }}></span>
+        {tag}
+        <span className="text-xs text-zinc-500 font-normal ml-auto">({contacts.length})</span>
+      </h3>
+    </div>
+    
+    {/* Contacts under this tag */}
+    {contacts.map(contact => (
+      <ContactItem
+        key={`${tag}-${contact.id}`}
+        contact={contact}
+        isSelected={selectedContactId === contact.id}
+        onClick={() => onContactClick(contact)}
+        onKeyDown={(e) => onContactKeyDown(e, contact)}
+        onFavoriteClick={(e) => onFavoriteClick(e, contact)}
+        getInitials={getInitials}
+        getTagColor={getTagColor}
+        onImageError={onImageError}
+        showMultipleTags={true}
+      />
+    ))}
+  </div>
+);
+
 const AllContacts = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -279,124 +417,34 @@ const AllContacts = () => {
 
     if (activeTab === 'tags' && groupedByTags) {
       return Object.entries(groupedByTags).map(([tag, tagContacts]) => (
-        <div key={tag} className="mb-4">
-          {/* Tag heading with tag color */}
-          <div className="px-4 py-2 sticky top-0 bg-zinc-950 z-10 border-b border-zinc-800">
-            <h3 
-              className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2"
-              style={{ color: getTagColor(tag) }}
-            >
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: getTagColor(tag) }}></span>
-              {tag}
-              <span className="text-xs text-zinc-500 font-normal ml-auto">({tagContacts.length})</span>
-            </h3>
-          </div>
-          
-          {/* Contacts under this tag */}
-          {tagContacts.map(contact => (
-            <div
-              key={`${tag}-${contact.id}`}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleContactClick(contact)}
-              onKeyDown={(e) => handleContactKeyDown(e, contact)}
-              className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
-                selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
-              }`}
-            >
-              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
-                {contact.profileImage && contact.profileImage.trim() !== '' ? (
-                  <img 
-                    src={contact.profileImage} 
-                    alt={`${contact.firstName} ${contact.lastName}`} 
-                    className="w-full h-full object-cover" 
-                    onError={(e) => handleImageError(e, contact)}
-                  />
-                ) : (
-                  getInitials(contact)
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="text-sm font-medium text-white truncate">
-                    {contact.firstName} {contact.lastName}
-                  </h3>
-                  {contact.tags && contact.tags.length > 1 && (
-                    <div className="flex gap-1">
-                      {contact.tags.slice(0, 2).map((t) => (
-                        <span
-                          key={`${contact.id}-${t}`}
-                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: getTagColor(t) }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
-              </div>
-              <button
-                onClick={(e) => handleFavoriteClick(e, contact)}
-                className="flex-shrink-0"
-              >
-                <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
-              </button>
-            </div>
-          ))}
-        </div>
+        <TagGroup
+          key={tag}
+          tag={tag}
+          contacts={tagContacts}
+          selectedContactId={selectedContact?.id}
+          onContactClick={handleContactClick}
+          onContactKeyDown={handleContactKeyDown}
+          onFavoriteClick={handleFavoriteClick}
+          getInitials={getInitials}
+          getTagColor={getTagColor}
+          onImageError={handleImageError}
+        />
       ));
     }
 
     // Regular list view
     return filteredContacts.map(contact => (
-      <div
+      <ContactItem
         key={contact.id}
-        role="button"
-        tabIndex={0}
+        contact={contact}
+        isSelected={selectedContact?.id === contact.id}
         onClick={() => handleContactClick(contact)}
         onKeyDown={(e) => handleContactKeyDown(e, contact)}
-        className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
-          selectedContact?.id === contact.id ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
-        }`}
-      >
-        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
-          {contact.profileImage && contact.profileImage.trim() !== '' ? (
-            <img 
-              src={contact.profileImage} 
-              alt={`${contact.firstName} ${contact.lastName}`} 
-              className="w-full h-full object-cover" 
-              onError={(e) => handleImageError(e, contact)}
-            />
-          ) : (
-            getInitials(contact)
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="text-sm font-medium text-white truncate">
-              {contact.firstName} {contact.lastName}
-            </h3>
-            {contact.tags && contact.tags.length > 0 && (
-              <div className="flex gap-1">
-                {contact.tags.slice(0, 2).map((tag) => (
-                  <span
-                    key={`${contact.id}-${tag}`}
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: getTagColor(tag) }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
-        </div>
-        <button
-          onClick={(e) => handleFavoriteClick(e, contact)}
-          className="flex-shrink-0"
-        >
-          <Star size={16} className={contact.isFavorite ? 'fill-yellow-500 text-yellow-500' : 'text-zinc-600'} />
-        </button>
-      </div>
+        onFavoriteClick={(e) => handleFavoriteClick(e, contact)}
+        getInitials={getInitials}
+        getTagColor={getTagColor}
+        onImageError={handleImageError}
+      />
     ));
   };
 
@@ -510,18 +558,12 @@ const AllContacts = () => {
               )}
               <div className="mb-8">
                 <div className="flex items-start gap-6 mb-6">
-                  <div className="w-24 h-24 rounded-full bg-zinc-900 flex items-center justify-center text-2xl font-medium overflow-hidden border-2 border-zinc-800">
-                    {selectedContact.profileImage && selectedContact.profileImage.trim() !== '' ? (
-                      <img 
-                        src={selectedContact.profileImage} 
-                        alt={`${selectedContact.firstName} ${selectedContact.lastName}`} 
-                        className="w-full h-full object-cover" 
-                        onError={(e) => handleImageError(e, selectedContact)}
-                      />
-                    ) : (
-                      getInitials(selectedContact)
-                    )}
-                  </div>
+                  <ContactAvatar 
+                    contact={selectedContact} 
+                    getInitials={getInitials} 
+                    onImageError={handleImageError}
+                    size="large"
+                  />
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold mb-1">
                       {selectedContact.firstName} {selectedContact.lastName}
