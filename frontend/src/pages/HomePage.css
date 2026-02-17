@@ -1,0 +1,302 @@
+.home-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.home-content {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Header Box */
+.header-box {
+  width: 100%;
+  background: white;
+  padding: 2.5rem 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  animation: fadeInDown 0.8s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Typing Animation Section */
+.typing-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.typing-box {
+  background: white;
+  padding: 1.5rem 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.15);
+  display: inline-flex;
+  align-items: center;
+  animation: fadeIn 1s ease 0.3s backwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.typed-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #7c3aed;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.5rem;
+  background: #7c3aed;
+  margin-left: 4px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Folder Container */
+.folder-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  animation: fadeIn 1.2s ease 0.6s backwards;
+}
+
+.folder-box {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.folder-box:hover {
+  transform: translateY(-10px);
+}
+
+.folder-icon {
+  position: relative;
+  width: 280px;
+  height: 220px;
+}
+
+.folder-tab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 30px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.folder-body {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  width: 100%;
+  height: 195px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  border-radius: 15px;
+  box-shadow: 0 15px 50px rgba(124, 58, 237, 0.4);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.contact-cards {
+  display: flex;
+  gap: 1rem;
+  perspective: 1000px;
+}
+
+.contact-card {
+  width: 70px;
+  height: 100px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.folder-box:hover .contact-card {
+  transform: translateY(-15px) rotateY(5deg);
+}
+
+.folder-box:hover .card-1 {
+  transition-delay: 0s;
+}
+
+.folder-box:hover .card-2 {
+  transition-delay: 0.1s;
+  transform: translateY(-20px) rotateY(0deg);
+}
+
+.folder-box:hover .card-3 {
+  transition-delay: 0.2s;
+  transform: translateY(-15px) rotateY(-5deg);
+}
+
+.card-avatar {
+  font-size: 2.5rem;
+  filter: grayscale(0.2);
+}
+
+/* View Button */
+.view-button {
+  background: white;
+  color: #7c3aed;
+  border: 3px solid #7c3aed;
+  padding: 1.25rem 4rem;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.25);
+  transition: all 0.4s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: fadeIn 1.5s ease 0.9s backwards;
+}
+
+.view-button:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
+}
+
+.view-button:active {
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .home-content {
+    padding: 1rem;
+  }
+
+  .main-heading {
+    font-size: 2rem;
+  }
+
+  .header-box {
+    padding: 2rem;
+  }
+
+  .typed-text {
+    font-size: 1.2rem;
+  }
+
+  .typing-box {
+    padding: 1rem 1.5rem;
+  }
+
+  .folder-icon {
+    width: 220px;
+    height: 180px;
+  }
+
+  .folder-body {
+    height: 155px;
+  }
+
+  .contact-card {
+    width: 55px;
+    height: 80px;
+  }
+
+  .card-avatar {
+    font-size: 2rem;
+  }
+
+  .view-button {
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-heading {
+    font-size: 1.6rem;
+  }
+
+  .typed-text {
+    font-size: 1rem;
+  }
+
+  .folder-icon {
+    width: 180px;
+    height: 150px;
+  }
+
+  .contact-card {
+    width: 45px;
+    height: 65px;
+  }
+
+  .card-avatar {
+    font-size: 1.5rem;
+  }
+
+  .view-button {
+    padding: 0.9rem 2.5rem;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+}
