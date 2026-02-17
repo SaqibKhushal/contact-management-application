@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AllContacts from './pages/AllContacts';
@@ -45,6 +46,14 @@ function AppContent() {
       <div className="app">
         <Routes>
           <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <HomePage />
+              </PublicRoute>
+            }
+          />
+          <Route
             path="/login"
             element={
               <PublicRoute>
@@ -76,8 +85,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/contacts" />} />
-          <Route path="*" element={<Navigate to="/contacts" />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
         <ToastContainer

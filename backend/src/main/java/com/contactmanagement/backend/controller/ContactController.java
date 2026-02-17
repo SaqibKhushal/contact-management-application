@@ -3,6 +3,8 @@ package com.contactmanagement.backend.controller;
 import com.contactmanagement.backend.dto.ContactDTO;
 import com.contactmanagement.backend.service.ContactService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ContactController {
     
+    private static final Logger logger = LoggerFactory.getLogger(ContactController.class);
     private final ContactService contactService;
     
     public ContactController(ContactService contactService) {
@@ -34,6 +37,7 @@ public class ContactController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "firstName") String sortBy) {
+        logger.debug("Fetching contacts - page: {}, size: {}, sortBy: {}", page, size, sortBy);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         Page<ContactDTO> contacts = contactService.getAllContacts(pageable);
         return ResponseEntity.ok(contacts);
@@ -44,6 +48,7 @@ public class ContactController {
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        logger.info("Searching contacts with query: {}", query);
         Pageable pageable = PageRequest.of(page, size);
         Page<ContactDTO> contacts = contactService.searchContacts(query, pageable);
         return ResponseEntity.ok(contacts);
@@ -57,7 +62,9 @@ public class ContactController {
     
     @PostMapping
     public ResponseEntity<ContactDTO> createContact(@Valid @RequestBody ContactDTO contactDTO) {
+        logger.info("Creating new contact: {} {}", contactDTO.getFirstName(), contactDTO.getLastName());
         ContactDTO created = contactService.createContact(contactDTO);
+        logger.info("Contact created successfully with ID: {}", created.getId());
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
     
@@ -65,15 +72,19 @@ public class ContactController {
     public ResponseEntity<ContactDTO> updateContact(
             @PathVariable Long id,
             @Valid @RequestBody ContactDTO contactDTO) {
+        logger.info("Updating contact with ID: {}", id);
         ContactDTO updated = contactService.updateContact(id, contactDTO);
+        logger.info("Contact updated successfully: {}", id);
         return ResponseEntity.ok(updated);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteContact(@PathVariable Long id) {
+        logger.info("Deleting contact with ID: {}", id);
         contactService.deleteContact(id);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Contact deleted successfully");
+        logger.info("Contact deleted successfully: {}", id);
         return ResponseEntity.ok(response);
     }
     
