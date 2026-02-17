@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,6 +21,10 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired
+};
+
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -27,7 +32,11 @@ const PublicRoute = ({ children }) => {
     return <LoadingSpinner />;
   }
 
-  return !isAuthenticated ? children : <Navigate to="/contacts" />;
+  return isAuthenticated === false ? children : <Navigate to="/contacts" />;
+};
+
+PublicRoute.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 function AppContent() {

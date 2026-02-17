@@ -72,12 +72,11 @@ const ContactItem = ({
   onImageError,
   showMultipleTags = false
 }) => (
-  <div
-    role="button"
-    tabIndex={0}
+  <button
+    type="button"
     onClick={onClick}
     onKeyDown={onKeyDown}
-    className={`px-4 py-3 cursor-pointer transition flex items-center gap-3 ${
+    className={`w-full px-4 py-3 cursor-pointer transition flex items-center gap-3 text-left ${
       isSelected ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
     }`}
   >
@@ -101,7 +100,7 @@ const ContactItem = ({
       <p className="text-xs text-zinc-500 truncate">{contact.title || 'No title'}</p>
     </div>
     <FavoriteButton contact={contact} onClick={onFavoriteClick} />
-  </div>
+  </button>
 );
 
 // Reusable Component: Tag group header and contacts

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './ContactCard.css';
 
 const ContactCard = ({ contact, onEdit, onDelete, onView }) => {
@@ -41,9 +42,9 @@ const ContactCard = ({ contact, onEdit, onDelete, onView }) => {
           </h3>
           {contact.tags && contact.tags.length > 0 && (
             <div className="contact-tags">
-              {contact.tags.slice(0, 2).map((tag, idx) => (
+              {contact.tags.slice(0, 2).map((tag) => (
                 <span
-                  key={idx}
+                  key={`${contact.id}-${tag}`}
                   className="tag-dot"
                   style={{ backgroundColor: getTagColor(tag) }}
                   title={tag}
@@ -84,6 +85,33 @@ const ContactCard = ({ contact, onEdit, onDelete, onView }) => {
       </div>
     </div>
   );
+};
+
+ContactCard.propTypes = {
+  contact: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    firstName: PropTypes.string,
+    lastName: PropTypes.string,
+    profileImage: PropTypes.string,
+    title: PropTypes.string,
+    isFavorite: PropTypes.bool,
+    tags: PropTypes.arrayOf(PropTypes.string),
+    emailAddresses: PropTypes.arrayOf(
+      PropTypes.shape({
+        email: PropTypes.string,
+        label: PropTypes.string
+      })
+    ),
+    phoneNumbers: PropTypes.arrayOf(
+      PropTypes.shape({
+        phone: PropTypes.string,
+        label: PropTypes.string
+      })
+    )
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onView: PropTypes.func.isRequired
 };
 
 export default ContactCard;

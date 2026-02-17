@@ -44,9 +44,11 @@ api.interceptors.response.use(
       });
       
       // Only redirect if not already on login page
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      /* eslint-disable no-undef */
+      if (globalThis.location.pathname !== '/login') {
+        globalThis.location.href = '/login';
       }
+      /* eslint-enable no-undef */
     }
     return Promise.reject(error);
   }
